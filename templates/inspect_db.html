@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Database Inspection - Password Protection Proof{% endblock %}
+
+{% block content %}
+<div class="card card-wide">
+    <div class="card-header">
+        <h1 class="card-title">🗄️ Database Inspection: Stored Hashes</h1>
+        <p class="card-subtitle">Visual Proof: Passwords are NEVER stored in plaintext</p>
+    </div>
+
+    <div class="security-box" style="margin-top: 0; margin-bottom: 1.5rem;">
+        <strong>Anatomy of Stored Bcrypt Hash:</strong>
+        <p>Example: <code>$2b$12$e8iVw6wG...</code></p>
+        <p>• <strong>$2b$</strong>: Bcrypt algorithm identifier</p>
+        <p>• <strong>$12$</strong>: Cost factor ($2^{12} = 4096$ key derivation rounds, intentionally slow)</p>
+        <p>• <strong>Next 22 chars</strong>: Cryptographically secure random salt (unique per user)</p>
+        <p>• <strong>Remaining 31 chars</strong>: Resulting hash digest</p>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Protected / Hashed Password (bcrypt)</th>
+                    <th>Failed Attempts</th>
+                    <th>Locked Until</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                    {% for u in users %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td><strong>{{ u.username }}</strong></td>
+                            <td><span class="hash-cell">{{ u.password_hash }}</span></td>
+                            <td>
+                                {% if u.failed_attempts >= 5 %}
+                                    <span class="badge badge-danger">{{ u.failed_attempts }} (Locked)</span>
+                                {% elif u.failed_attempts > 0 %}
+                                    <span class="badge badge-warning">{{ u.failed_attempts }}</span>
+                                {% else %}
+                                    <span class="badge badge-success">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.locked_until %}
+                                    <span style="color: #dc2626; font-size: 0.8rem;">{{ u.locked_until }}</span>
+                                {% else %}
+                                    <span style="color: #64748b; font-size: 0.8rem;">None</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No users registered yet. <a href="{{ url_for('register') }}">Register a user</a> to inspect hashed credentials.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+            💡 Notice: Even if two users share the same password, their hashes will differ due to unique salts!
+        </span>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ url_for('login') }}" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">Back to Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem;">Register Another User</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

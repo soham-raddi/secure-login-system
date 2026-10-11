@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Secure Login System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Sign In</h1>
+        <p class="card-subtitle">Protected by Bcrypt (Cost 12) & Rate Limiting</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-input" required autocomplete="username" autofocus placeholder="Enter your username">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-input" required autocomplete="current-password" placeholder="Enter your password">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+
+    <div class="security-box">
+        <strong>Security Notice:</strong>
+        <p>• Account locks for 10 minutes after 5 failed attempts.</p>
+        <p>• IP rate-limited to 10 requests per minute.</p>
+        <p>• Constant-time hash verification mitigates timing attacks.</p>
+    </div>
+
+    <div class="footer-text">
+        Don't have an account? <a href="{{ url_for('register') }}">Create an account</a>
+    </div>
+</div>
+{% endblock %}

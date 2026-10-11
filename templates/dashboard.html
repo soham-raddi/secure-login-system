@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Secure Login System{% endblock %}
+
+{% block content %}
+<div class="card card-wide">
+    <div class="card-header">
+        <h1 class="card-title">🎉 Authentication Successful</h1>
+        <p class="card-subtitle">Welcome to the Protected User Dashboard</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #1e293b;">Active Session Details</h2>
+        <p><strong>Authenticated User:</strong> <span class="badge badge-success">{{ username }}</span></p>
+        <p><strong>Session Status:</strong> Active (Encrypted Server-side Cookie)</p>
+        <p><strong>Access Control:</strong> Protected by <code>@login_required</code> decorator</p>
+    </div>
+
+    <div class="security-box">
+        <strong>Security Verification Highlights for this Session:</strong>
+        <p>✅ <strong>Password Protection:</strong> Salted & hashed using Bcrypt (Cost 12) + Application Pepper.</p>
+        <p>✅ <strong>Session Security:</strong> Cookie configured with <code>HttpOnly=True</code> (prevents XSS cookie theft) and <code>SameSite=Lax</code> (prevents CSRF).</p>
+        <p>✅ <strong>Brute-Force Counter:</strong> Failed attempt counter successfully reset to 0 upon authenticated login.</p>
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <a href="{{ url_for('inspect_db') }}" class="btn btn-secondary" style="margin-top: 0;">Inspect Stored Hashes in Database</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Log Out</a>
+    </div>
+</div>
+{% endblock %}
